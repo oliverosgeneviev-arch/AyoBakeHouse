@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ayo Bakehouse</title>
+<link href="https://cdn.jsdelivr.net/npm/@fontsource/poppins@5/300.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/@fontsource/poppins@5/400.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/@fontsource/poppins@5/600.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/@fontsource/poppins@5/700.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/@fontsource/poppins@5/800.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/@fontsource/poppins@5/900.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{--pk:#FF0066;--bk:#000;--wh:#fff;--cr:#F5F0E8;--gy:#666}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Poppins',sans-serif;background:#fff;color:#111;overflow-x:hidden}
+.hidden{display:none!important}
+
+/* SETUP (GitHub Pages only) */
+.sw{min-height:100vh;background:#000;display:flex;align-items:center;justify-content:center;padding:24px 16px}
+.sc{background:#fff;max-width:500px;width:100%;padding:44px 36px}
+.sl{display:flex;align-items:center;gap:12px;margin-bottom:26px}
+.sl .big{font-size:1.7rem;font-weight:900;color:var(--pk);letter-spacing:-1px;line-height:1}
+.sl .sm{font-size:.54rem;color:#999;letter-spacing:3px;text-transform:uppercase}
+.sc h1{font-size:1.45rem;font-weight:900;text-transform:uppercase;letter-spacing:-1px;margin-bottom:7px}
+.sc h1 em{color:var(--pk);font-style:normal}
+.ssub{font-size:.75rem;color:var(--gy);line-height:1.65;margin-bottom:22px}
+.steps{margin-bottom:22px}
+.step{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid #f0f0f0}
+.step:last-child{border-bottom:none}
+.sn{width:23px;height:23px;background:var(--pk);color:#fff;font-size:.65rem;font-weight:800;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.st{font-size:.74rem;color:#333;line-height:1.65}
+.st a{color:var(--pk);font-weight:700;text-decoration:none}
+.st code{background:#f4f4f4;padding:2px 5px;font-size:.68rem;border-radius:3px;font-family:monospace;word-break:break-all}
+.sf label{display:block;font-size:.56rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#999;margin-bottom:7px}
+.sf input{width:100%;border:none;border-bottom:2px solid #ddd;font-family:'Poppins',sans-serif;font-size:.86rem;padding:8px 0;outline:none;transition:border-color .2s;background:none}
+.sf input:focus{border-bottom-color:var(--pk)}
+.serr{font-size:.72rem;color:#f44;margin-top:5px;min-height:16px}
+.scta{width:100%;background:var(--pk);color:#fff;border:none;font-family:'Poppins',sans-serif;font-size:.78rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:14px;cursor:pointer;transition:background .2s;margin-top:12px}
+.scta:hover{background:#000}
+.scta:disabled{background:#ccc;cursor:not-allowed}
+.sdiv{text-align:center;margin:16px 0;font-size:.58rem;color:#ccc;letter-spacing:2px;text-transform:uppercase;position:relative}
+.sdiv::before,.sdiv::after{content:'';position:absolute;top:50%;width:44%;height:1px;background:#eee}
+.sdiv::before{left:0}.sdiv::after{right:0}
+.dbtn{width:100%;background:none;border:1px solid #e0e0e0;font-family:'Poppins',sans-serif;font-size:.72rem;color:#888;padding:11px;cursor:pointer;transition:all .2s}
+.dbtn:hover{border-color:#333;color:#333}
+.dbadge{display:inline-block;background:#f5a623;color:#fff;font-size:.52rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:2px 6px;border-radius:2px;margin-left:6px;vertical-align:middle}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;background:#000;padding:11px 18px;display:flex;justify-content:space-between;align-items:center;z-index:100;gap:6px}
+.nlogo{display:flex;align-items:center;gap:8px;cursor:pointer;flex-shrink:0}
+.layo{font-size:1.15rem;font-weight:900;color:var(--pk);line-height:1;letter-spacing:-1px}
+.lsub{font-size:.48rem;color:#777;letter-spacing:3px;text-transform:uppercase}
+.nlinks{display:flex;align-items:center;gap:1px}
+.nb{background:none;border:none;color:#aaa;font-family:'Poppins',sans-serif;font-size:.65rem;font-weight:600;cursor:pointer;padding:6px 9px;letter-spacing:1.2px;text-transform:uppercase;transition:color .2s;white-space:nowrap}
+.nb:hover{color:#fff}
+.nb.adm{color:var(--pk)}
+
+/* SYNC BUTTON */
+.snc{background:none;border:1px solid #1a1a1a;color:#444;font-family:'Poppins',sans-serif;font-size:.54rem;font-weight:700;cursor:pointer;padding:4px 8px;letter-spacing:1px;text-transform:uppercase;transition:all .2s;border-radius:2px;white-space:nowrap;flex-shrink:0}
+.snc:hover,.snc.ok{border-color:#1db954;color:#1db954}
+.snc.syncing{border-color:#f90;color:#f90;pointer-events:none}
+.snc.err{border-color:#f44;color:#f44}
+
+/* STATUS BAR */
+.sbar{background:#111;padding:6px 18px;font-size:.56rem;color:#444;letter-spacing:1.5px;text-transform:uppercase;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:5px}
+.sdot{width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:5px;background:#1db954}
+.sdot.fb{background:#f5a623}
+.sdot.dm{background:#888}
+.creset{background:none;border:none;color:#444;font-family:'Poppins',sans-serif;font-size:.54rem;cursor:pointer;letter-spacing:1px;text-transform:uppercase;transition:color .2s}
+.creset:hover{color:var(--pk)}
+.demo-bar{background:#f5a623;color:#fff;text-align:center;padding:6px;font-size:.62rem;font-weight:700;letter-spacing:2px;text-transform:uppercase}
+
+/* HERO */
+.hero{margin-top:56px;background:#000;min-height:52vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:70px 22px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at center,#2a0018 0%,#000 65%)}
+.hi{position:relative;z-index:1}
+.hd{font-size:.65rem;color:var(--pk);font-weight:600;letter-spacing:3px;text-transform:uppercase;margin-bottom:13px}
+.hero h1{font-size:clamp(2.8rem,11vw,8rem);font-weight:900;color:#fff;line-height:.88;letter-spacing:-3px;text-transform:uppercase}
+.hero h1 em{color:var(--pk);font-style:normal}
+.htag{font-size:.65rem;color:#555;letter-spacing:4px;text-transform:uppercase;margin-top:18px;font-weight:300}
+
+/* MENU */
+.sec{padding:56px 20px}
+.sec.cr{background:var(--cr)}
+.stitle{font-size:clamp(1.8rem,6vw,4rem);font-weight:900;text-transform:uppercase;letter-spacing:-2px;line-height:.92}
+.stitle em{color:var(--pk);font-style:normal}
+.mgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:2px}
+.mc{background:#fff;padding:22px;transition:transform .25s,box-shadow .25s}
+.mc:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,.1);z-index:2}
+.mcat{font-size:.56rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--pk);margin-bottom:7px}
+.mname{font-size:1.1rem;font-weight:800;text-transform:uppercase;letter-spacing:-.3px;line-height:1.1;margin-bottom:6px}
+.mdesc{font-size:.74rem;color:var(--gy);line-height:1.6;font-weight:300;margin-bottom:14px}
+.mpr{font-size:1.35rem;font-weight:900}
+.qrow{display:flex;align-items:center;gap:9px;margin-top:11px}
+.qb{width:34px;height:34px;background:#000;color:#fff;border:none;font-size:1.1rem;font-weight:700;cursor:pointer;transition:background .2s;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.qb:hover{background:var(--pk)}
+.qn{font-size:.95rem;font-weight:700;min-width:22px;text-align:center}
+
+/* ORDER */
+.osec{padding:56px 20px;background:#000;color:#fff}
+.oin{max-width:700px;margin:0 auto}
+.flbl{display:block;font-size:.58rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#666;margin-bottom:7px}
+.tinp{width:100%;background:none;border:none;border-bottom:2px solid #222;color:#fff;font-family:'Poppins',sans-serif;font-size:clamp(1.2rem,5vw,1.7rem);font-weight:700;padding:7px 0;outline:none;transition:border-color .2s}
+.tinp:focus{border-bottom-color:var(--pk)}
+.tinp::placeholder{color:#222}
+.nwrap{margin:28px 0 20px}
+.obox{background:#0d0d0d;padding:20px;margin-bottom:18px}
+.orow{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #1a1a1a;font-size:.86rem}
+.orow:last-of-type{border-bottom:none}
+.ototl{display:flex;justify-content:space-between;align-items:center;padding-top:14px;margin-top:6px;border-top:2px solid var(--pk);font-size:1.15rem;font-weight:800}
+.oempty{color:#2a2a2a;text-align:center;padding:20px;font-size:.7rem;letter-spacing:2px;text-transform:uppercase}
+.cta{background:var(--pk);color:#fff;border:none;padding:16px 36px;font-family:'Poppins',sans-serif;font-size:.86rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .25s;width:100%;margin-top:5px}
+.cta:hover{background:#fff;color:#000}
+.cta:disabled{background:#1a1a1a;color:#333;cursor:not-allowed}
+
+/* ADMIN */
+.ap{min-height:100vh;padding-top:56px;background:var(--cr)}
+.ah{background:#000;color:#fff;padding:24px 18px}
+.ah h2{font-size:1.8rem;font-weight:900;text-transform:uppercase;letter-spacing:-1px}
+.ah h2 em{color:var(--pk);font-style:normal}
+.ah p{font-size:.56rem;color:#555;letter-spacing:2px;text-transform:uppercase;margin-top:4px}
+.atabs{display:flex;background:#050505;padding:0 18px;overflow-x:auto}
+.atab{background:none;border:none;border-bottom:3px solid transparent;color:#555;font-family:'Poppins',sans-serif;font-size:.65rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;cursor:pointer;padding:12px 15px;transition:all .2s;white-space:nowrap}
+.atab:hover{color:#fff}
+.atab.on{color:var(--pk);border-bottom-color:var(--pk)}
+.atab.bk{color:var(--pk);margin-left:auto}
+.atab.bk:hover{color:#fff}
+.abody{padding:20px 18px}
+.ai{background:#fff;padding:16px 18px;margin-bottom:2px;display:flex;align-items:center;gap:13px;flex-wrap:wrap}
+.aii{flex:1;min-width:130px}
+.ain{font-weight:800;font-size:.88rem;text-transform:uppercase}
+.aic{font-size:.56rem;color:var(--pk);font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-top:2px}
+.pi{background:none;border:none;border-bottom:2px solid #ddd;font-family:'Poppins',sans-serif;font-size:.95rem;font-weight:700;width:82px;text-align:right;padding:3px;outline:none;transition:border-color .2s}
+.pi:focus{border-bottom-color:var(--pk)}
+.tgl{position:relative;width:42px;height:21px;flex-shrink:0}
+.tgl input{display:none}
+.tsl{position:absolute;inset:0;background:#ccc;border-radius:21px;cursor:pointer;transition:.3s}
+.tsl::before{content:'';position:absolute;width:15px;height:15px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s}
+.tgl input:checked+.tsl{background:var(--pk)}
+.tgl input:checked+.tsl::before{transform:translateX(21px)}
+.dbtn{background:none;border:none;color:#ccc;font-size:.95rem;cursor:pointer;padding:3px 7px;transition:color .2s}
+.dbtn:hover{color:#f44}
+.aform{background:#fff;padding:22px;margin-bottom:4px;border-left:4px solid var(--pk)}
+.aft{font-size:.56rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--pk);margin-bottom:14px}
+.fr{display:flex;gap:13px;margin-bottom:11px;flex-wrap:wrap}
+.fg{flex:1;min-width:130px}
+.fg label{display:block;font-size:.54rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#999;margin-bottom:5px}
+.fg input,.fg select{width:100%;border:none;border-bottom:2px solid #ddd;font-family:'Poppins',sans-serif;font-size:.86rem;padding:5px 0;outline:none;background:none;transition:border-color .2s}
+.fg input:focus,.fg select:focus{border-bottom-color:var(--pk)}
+.sbtn{background:#000;color:#fff;border:none;font-family:'Poppins',sans-serif;font-size:.65rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:11px 20px;cursor:pointer;transition:background .2s;margin-top:12px;margin-right:6px}
+.sbtn:hover{background:var(--pk)}
+.sbtn.gh{background:#bbb}
+.sbtn.gh:hover{background:#888}
+.stats{display:flex;gap:2px;margin-bottom:18px;flex-wrap:wrap}
+.stat{background:#fff;padding:16px 20px;flex:1;min-width:90px}
+.statl{font-size:.54rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#999;margin-bottom:4px}
+.statv{font-size:1.5rem;font-weight:900;letter-spacing:-1px}
+.statv.pk{color:var(--pk)}
+.ebtn{background:var(--pk);color:#fff;border:none;font-family:'Poppins',sans-serif;font-size:.65rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:10px 20px;cursor:pointer;transition:background .2s;margin-right:6px;margin-bottom:14px}
+.ebtn:hover{background:#000}
+.ebtn.gh{background:#555}
+.ebtn.gh:hover{background:#000}
+.tbl{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{width:100%;border-collapse:collapse;background:#fff;font-size:.8rem}
+thead th{background:#000;color:#fff;padding:11px 13px;font-size:.56rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;text-align:left;white-space:nowrap}
+tbody td{padding:10px 13px;border-bottom:1px solid #f0f0f0}
+tbody tr:hover td{background:#fafafa}
+.noo{text-align:center;color:#999;padding:32px;font-size:.7rem;letter-spacing:2px;text-transform:uppercase}
+
+/* MODALS */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.9);display:flex;align-items:center;justify-content:center;z-index:500;padding:14px}
+.modal{background:#fff;padding:36px 30px;max-width:380px;width:100%}
+.modal h3{font-size:1.5rem;font-weight:900;text-transform:uppercase;letter-spacing:-1px;margin-bottom:20px}
+.modal h3 em{color:var(--pk);font-style:normal}
+.minp{width:100%;border:none;border-bottom:2px solid #ddd;font-family:'Poppins',sans-serif;font-size:.95rem;padding:7px 0;margin-bottom:12px;outline:none;transition:border-color .2s}
+.minp:focus{border-bottom-color:var(--pk)}
+.merr{color:#f44;font-size:.72rem;margin-bottom:11px;display:none}
+.mact{display:flex;gap:9px;flex-wrap:wrap}
+.mct{background:var(--pk);color:#fff;border:none;padding:13px 26px;font-family:'Poppins',sans-serif;font-size:.78rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .2s;flex:1}
+.mct:hover{background:#000}
+.mct.cx{background:#ddd;color:#000}
+.mct.cx:hover{background:#bbb}
+.cdet{font-size:.84rem;color:#555;line-height:2;margin-bottom:20px}
+.cdet .tot{font-size:1.15rem;font-weight:900;color:var(--pk)}
+.cdet .onum{font-size:.62rem;letter-spacing:2px;text-transform:uppercase;color:#999}
+
+/* TOAST */
+.toast{position:fixed;bottom:18px;right:14px;left:14px;background:#000;color:#fff;padding:12px 16px;font-size:.76rem;font-weight:600;z-index:999;transform:translateY(100px);opacity:0;transition:all .28s;border-left:4px solid var(--pk);max-width:300px;margin:0 auto}
+.toast.show{transform:translateY(0);opacity:1}
+
+footer{background:#000;padding:20px 18px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:7px}
+footer span{font-size:.58rem;letter-spacing:2px;text-transform:uppercase;color:#444}
+footer span.br{color:var(--pk);font-weight:800}
+
+@media(max-width:400px){.mgrid{grid-template-columns:1fr}.sc{padding:28px 20px}.modal{padding:26px 18px}.nb{font-size:.58rem;padding:5px 6px}}
+</style>
+</head>
+<body>
+
+<!-- SETUP (GitHub Pages only) -->
+<div id="setupPage" class="hidden">
+<div class="sw"><div class="sc">
+  <div class="sl">
+    <svg width="40" height="40" viewBox="0 0 36 36"><circle cx="18" cy="18" r="18" fill="#FF0066"/><path d="M9 19 Q12 14 18 13 Q24 14 27 19" fill="none" stroke="white" stroke-width="1.6" stroke-linecap="round"/><ellipse cx="18" cy="16" rx="4.5" ry="3" fill="none" stroke="white" stroke-width="1.2"/><path d="M15 16 Q18 21 21 16" fill="none" stroke="white" stroke-width="1.2" stroke-linecap="round"/></svg>
+    <div><div class="big">ayo</div><div class="sm">Bakehouse</div></div>
+  </div>
+  <h1>Connect Your <em>Store</em></h1>
+  <p class="ssub">Link a free Firebase database so every device — desktop, mobile, tablet — always sees the same menu and orders in real time.</p>
+  <div class="steps">
+    <div class="step"><span class="sn">1</span><div class="st">Go to <a href="https://console.firebase.google.com" target="_blank">console.firebase.google.com</a> and sign in with Google</div></div>
+    <div class="step"><span class="sn">2</span><div class="st">Click <strong>Add project</strong> → name it <em>ayo-bakehouse</em> → skip Analytics → Create</div></div>
+    <div class="step"><span class="sn">3</span><div class="st">Left sidebar → <strong>Databases & Storage → Realtime Database → Create database</strong> → any region → <strong>Start in test mode</strong> → Enable</div></div>
+    <div class="step"><span class="sn">4</span><div class="st">Copy the URL at the top (e.g. <code>https://ayo-bakehouse-default-rtdb.firebaseio.com</code>) and paste below</div></div>
+  </div>
+  <div class="sf" style="margin-bottom:4px">
+    <label>Firebase Database URL</label>
+    <input type="url" id="fbIn" placeholder="https://your-project-default-rtdb.firebaseio.com" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" onkeydown="if(event.key==='Enter')connectFb()">
+    <div class="serr" id="serr"></div>
+  </div>
+  <button class="scta" id="connBtn" onclick="connectFb()">Connect & Open Store →</button>
+  <div class="sdiv">or</div>
+  <button class="dbtn" onclick="useDemo()">Continue without Firebase <span class="dbadge">Single device</span></button>
+</div></div>
+</div>
+
+<!-- NAV -->
+<nav id="mainNav" class="hidden">
+  <div class="nlogo" onclick="goStore()">
+    <svg width="30" height="30" viewBox="0 0 36 36"><circle cx="18" cy="18" r="18" fill="#FF0066"/><path d="M9 19 Q12 14 18 13 Q24 14 27 19" fill="none" stroke="white" stroke-width="1.6" stroke-linecap="round"/><ellipse cx="18" cy="16" rx="4.5" ry="3" fill="none" stroke="white" stroke-width="1.2"/><path d="M15 16 Q18 21 21 16" fill="none" stroke="white" stroke-width="1.2" stroke-linecap="round"/></svg>
+    <div style="display:flex;flex-direction:column"><span class="layo">ayo</span><span class="lsub">Bakehouse</span></div>
+  </div>
+  <div class="nlinks">
+    <button class="nb" onclick="sc('msec')">Menu</button>
+    <button class="nb" onclick="sc('osec')">Order</button>
+    <button class="nb adm" onclick="openAdmin()">Admin</button>
+    <button class="snc" id="snc" onclick="forceSync()">↻ Sync</button>
+  </div>
+</nav>
+<div id="demoBanner" class="demo-bar hidden">Demo / Claude Mode — share this conversation URL with customers for live sync</div>
+
+<!-- STORE -->
+<div id="storePage" class="hidden">
+  <section class="hero">
+    <div class="hi">
+      <div class="hd" id="hd"></div>
+      <h1>Fresh<br><em>Baked</em><br>Today.</h1>
+      <div class="htag">Micro Bakery · Sourdough & Jams · Palo, Leyte</div>
+    </div>
+  </section>
+  <section class="sec cr" id="msec">
+    <div style="margin-bottom:36px"><div class="stitle">Today's<br><em>Menu</em></div></div>
+    <div class="mgrid" id="mgrid"><div style="padding:32px;color:#999;font-size:.73rem;letter-spacing:2px;text-transform:uppercase">Loading menu…</div></div>
+  </section>
+  <section class="osec" id="osec">
+    <div class="oin">
+      <div class="stitle" style="color:#fff">Your<br><em style="color:var(--pk)">Order</em></div>
+      <div class="nwrap">
+        <label class="flbl">Your Name</label>
+        <input type="text" class="tinp" id="cname" placeholder="Type your name…" oninput="updSum()">
+      </div>
+      <div class="obox" id="obox"></div>
+      <button class="cta" id="placeBtn" onclick="placeOrder()" disabled>Place Order →</button>
+    </div>
+  </section>
+  <footer>
+    <span class="br">Ayo Bakehouse</span>
+    <span>Micro Bakery · Sourdough & Jams</span>
+    <span>Palo, Eastern Visayas</span>
+  </footer>
+</div>
+
+<!-- ADMIN -->
+<div id="adminPage" class="hidden">
+<div class="ap">
+  <div class="ah"><h2>Admin <em>Dashboard</em></h2><p>Ayo Bakehouse — Menu & Orders</p></div>
+  <div class="sbar" id="sbar"></div>
+  <div class="atabs">
+    <button class="atab on" id="tabM" onclick="swTab('m',this)">Menu</button>
+    <button class="atab" id="tabO" onclick="swTab('o',this)">Orders</button>
+    <button class="atab bk" onclick="goStore()">← Store</button>
+  </div>
+  <div class="abody" id="mTab">
+    <div id="addWrap" class="hidden">
+      <div class="aform">
+        <div class="aft">Add New Item</div>
+        <div class="fr">
+          <div class="fg"><label>Item Name</label><input type="text" id="nName" placeholder="e.g. Sourdough Loaf"></div>
+          <div class="fg"><label>Category</label><select id="nCat"><option>Sourdough</option><option>Baguette</option><option>Pastry</option><option>Jam</option><option>Special</option><option>Other</option></select></div>
+        </div>
+        <div class="fr">
+          <div class="fg"><label>Description</label><input type="text" id="nDesc" placeholder="Short description…"></div>
+          <div class="fg" style="max-width:115px"><label>Price (₱)</label><input type="number" id="nPrice" placeholder="0.00" step="0.5" min="0"></div>
+        </div>
+        <button class="sbtn" onclick="saveItem()">Save Item</button>
+        <button class="sbtn gh" onclick="document.getElementById('addWrap').classList.add('hidden')">Cancel</button>
+      </div>
+    </div>
+    <button class="sbtn" onclick="document.getElementById('addWrap').classList.remove('hidden')" style="margin-bottom:12px">+ Add Item</button>
+    <div id="alist"></div>
+  </div>
+  <div class="abody hidden" id="oTab">
+    <div class="stats" id="stats"></div>
+    <button class="ebtn" onclick="exportXls()">↓ Export Excel</button>
+    <button class="ebtn gh" onclick="clearOrders()">Clear Orders</button>
+    <div class="tbl"><table><thead><tr><th>#</th><th>Time</th><th>Customer</th><th>Items</th><th>Total</th></tr></thead><tbody id="otbody"></tbody></table></div>
+  </div>
+</div>
+</div>
+
+<!-- Modals -->
+<div class="overlay hidden" id="adminModal">
+  <div class="modal">
+    <h3>Admin <em>Access</em></h3>
+    <label class="flbl">Password</label>
+    <input type="password" class="minp" id="apw" placeholder="Enter password…" onkeydown="if(event.key==='Enter')checkPw()">
+    <div class="merr" id="pwerr">Incorrect password.</div>
+    <div class="mact">
+      <button class="mct" onclick="checkPw()">Enter</button>
+      <button class="mct cx" onclick="closeM('adminModal')">Cancel</button>
+    </div>
+  </div>
+</div>
+<div class="overlay hidden" id="confModal">
+  <div class="modal">
+    <h3>Order <em>Placed!</em></h3>
+    <div class="cdet" id="cdet"></div>
+    <button class="mct" onclick="closeM('confModal');resetCart()" style="width:100%">New Order →</button>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ══ CONFIG ══ */
+const PASS    = 'ayobake2024';
+const MK      = 'ayo-menu-v3';
+const OK      = 'ayo-orders-v3';
+const FB_KEY  = 'ayo-fb-url';
+const POLL_MS = 2000; // 2 second poll
+
+const DEF = [
+  {id:1,name:'Classic Sourdough',cat:'Sourdough',desc:'Traditional whole wheat, long-fermented 18-hour loaf',price:280,on:true},
+  {id:2,name:'Multiseed Loaf',cat:'Sourdough',desc:'Crunchy seeded crust — sunflower, sesame & flax blend',price:320,on:true},
+  {id:3,name:'Shokupan Milk Bread',cat:'Special',desc:'Japanese-style fluffy Motherdough pull-apart loaf',price:260,on:true},
+  {id:4,name:'Multiseed Baguette',cat:'Baguette',desc:'Open crumb, crunchy seeded baguette',price:120,on:true},
+  {id:5,name:'Hot Cross Buns',cat:'Pastry',desc:'Motherdough method, spiced with orange zest & raisins',price:180,on:false},
+  {id:6,name:'Quinoa Tofu Sisig Wrap',cat:'Special',desc:'Plant-based sisig in our house sourdough flatbread',price:220,on:true},
+  {id:7,name:'Strawberry Jam',cat:'Jam',desc:'House-made, low sugar — 220g jar',price:160,on:true},
+  {id:8,name:'Calamansi Marmalade',cat:'Jam',desc:'Fresh calamansi, lightly sweet — 220g jar',price:150,on:true},
+];
+
+/* ══ DETECT ENVIRONMENT ══ */
+// In Claude artifact: window.storage exists → use it (shared: true)
+// On GitHub Pages / standalone: use Firebase REST API
+const USE_WS = typeof window.storage !== 'undefined';
+let DBURL = '', menu=[], orders=[], cart={}, _mv=0, _ov=0, _poll=null;
+
+/* ══ STORAGE LAYER ══ */
+async function dbGet(key) {
+  if (USE_WS) {
+    try {
+      const r = await window.storage.get(key, true);
+      return r ? JSON.parse(r.value) : null;
+    } catch(e) { return null; }
+  }
+  // Firebase REST
+  try {
+    const r = await fetch(`${DBURL}/${key}.json`, {cache:'no-store'});
+    return r.ok ? await r.json() : null;
+  } catch(e) { return null; }
+}
+
+async function dbSet(key, val) {
+  if (USE_WS) {
+    try { await window.storage.set(key, JSON.stringify(val), true); return true; }
+    catch(e) { return false; }
+  }
+  // Firebase REST
+  try {
+    const r = await fetch(`${DBURL}/${key}.json`, {
+      method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(val)
+    });
+    return r.ok;
+  } catch(e) { return false; }
+}
+
+/* ══ DATA — use {v: timestamp, data: [...]} structure for reliable change detection ══ */
+async function loadAll() {
+  setSyncState('syncing');
+  const [m, o] = await Promise.all([dbGet(MK), dbGet(OK)]);
+
+  if (m && m.v) { _mv = m.v; menu = m.data; }
+  else { menu = DEF; await dbSet(MK, {v: Date.now(), data: menu}); }
+
+  if (o && o.v) { _ov = o.v; orders = o.data; }
+  else { orders = []; }
+
+  setSyncState('ok');
+}
+
+async function saveMenu() {
+  setSyncState('syncing');
+  _mv = Date.now();
+  const ok = await dbSet(MK, {v: _mv, data: menu});
+  setSyncState(ok ? 'ok' : 'err');
+  if (!ok) toast('⚠ Save failed');
+}
+
+async function saveOrders() {
+  setSyncState('syncing');
+  _ov = Date.now();
+  const ok = await dbSet(OK, {v: _ov, data: orders});
+  setSyncState(ok ? 'ok' : 'err');
+}
+
+/* ══ POLL — compares version timestamps, not full strings ══ */
+async function poll() {
+  const [m, o] = await Promise.all([dbGet(MK), dbGet(OK)]);
+
+  if (m && m.v && m.v !== _mv) {
+    _mv = m.v; menu = m.data || [];
+    cleanCart(); renderMenu();
+    if (aOpen() && mTabOn()) renderAdmin();
+  }
+  if (o && o.v && o.v !== _ov) {
+    _ov = o.v; orders = o.data || [];
+    if (aOpen() && oTabOn()) renderOrders();
+  }
+}
+
+function startPoll() { if (_poll) clearInterval(_poll); _poll = setInterval(poll, POLL_MS); }
+
+async function forceSync() {
+  setSyncState('syncing');
+  await poll();
+  setSyncState('ok');
+}
+
+// INSTANT sync when tab becomes visible (critical for mobile background throttling)
+document.addEventListener('visibilitychange', () => { if (!document.hidden) forceSync(); });
+window.addEventListener('focus', forceSync);
+window.addEventListener('pageshow', forceSync);
+
+/* ══ SYNC UI ══ */
+function setSyncState(s) {
+  const b = document.getElementById('snc'); if (!b) return;
+  b.className = 'snc ' + s;
+  b.textContent = s==='syncing' ? '↻ Syncing' : s==='err' ? '⚠ Retry' : '✓ Live';
+}
+
+/* ══ DATE ══ */
+function updDate() {
+  const e = document.getElementById('hd');
+  if (e) e.textContent = new Date().toLocaleDateString('en-PH',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+}
+function schedDate() {
+  updDate();
+  const n = new Date();
+  setTimeout(() => { updDate(); setInterval(updDate, 86400000); },
+    new Date(n.getFullYear(),n.getMonth(),n.getDate()+1) - n);
+}
+
+/* ══ FIREBASE SETUP (GitHub Pages only) ══ */
+async function connectFb() {
+  const btn = document.getElementById('connBtn');
+  let url = (document.getElementById('fbIn').value.trim()).replace(/\/$/,'');
+  if (!url) { setSerr('Please enter your Firebase URL.'); return; }
+  if (!url.startsWith('https://')) url = 'https://' + url;
+  setSerr('Testing…'); btn.disabled = true;
+  try {
+    const r = await fetch(`${url}/.json?shallow=true`, {cache:'no-store'});
+    if (r.status===401||r.status===403) { setSerr('Access denied — enable test mode in Firebase rules.'); btn.disabled=false; return; }
+    if (!r.ok && r.status!==404) { setSerr(`Error ${r.status} — check the URL.`); btn.disabled=false; return; }
+    DBURL = url; localStorage.setItem(FB_KEY, url); launch();
+  } catch(e) { setSerr('Cannot reach Firebase. Check URL and internet.'); btn.disabled=false; }
+}
+function setSerr(m) { const e=document.getElementById('serr'); if(e) e.textContent=m; }
+function useDemo() { launch(); }
+function resetConn() {
+  if (!confirm('Disconnect database? Setup screen will reload.')) return;
+  localStorage.removeItem(FB_KEY); if(_poll)clearInterval(_poll); location.reload();
+}
+
+/* ══ LAUNCH ══ */
+async function launch() {
+  document.getElementById('setupPage').classList.add('hidden');
+  document.getElementById('mainNav').classList.remove('hidden');
+  if (USE_WS || !DBURL) document.getElementById('demoBanner').classList.remove('hidden');
+  document.getElementById('storePage').classList.remove('hidden');
+  schedDate(); await loadAll(); renderMenu(); startPoll();
+}
+
+/* ══ HELPERS ══ */
+const aOpen   = () => !document.getElementById('adminPage').classList.contains('hidden');
+const mTabOn  = () => !document.getElementById('mTab').classList.contains('hidden');
+const oTabOn  = () => !document.getElementById('oTab').classList.contains('hidden');
+function cleanCart() { Object.keys(cart).forEach(id => { const it=menu.find(x=>x.id==id); if(!it||!it.on) delete cart[id]; }); }
+
+/* ══ STORE — MENU ══ */
+function renderMenu() {
+  cleanCart();
+  const g = document.getElementById('mgrid');
+  const av = menu.filter(i => i.on);
+  if (!av.length) { g.innerHTML='<div style="padding:32px;color:#999;font-size:.73rem;letter-spacing:2px;text-transform:uppercase">No items today — check back soon!</div>'; updSum(); return; }
+  g.innerHTML = av.map(i => {
+    const q = cart[i.id]||0;
+    return `<div class="mc"><div class="mcat">${i.cat}</div><div class="mname">${i.name}</div><div class="mdesc">${i.desc}</div>
+    <div class="mpr" id="mp${i.id}">₱${i.price.toFixed(2)}</div>
+    <div class="qrow"><button class="qb" onclick="updQ(${i.id},-1)">−</button><span class="qn" id="q${i.id}">${q}</span><button class="qb" onclick="updQ(${i.id},1)">+</button></div></div>`;
+  }).join('');
+  updSum();
+}
+function updQ(id,d){cart[id]=Math.max(0,(cart[id]||0)+d);const e=document.getElementById('q'+id);if(e)e.textContent=cart[id];updSum();}
+function updSum(){
+  const box=document.getElementById('obox'),btn=document.getElementById('placeBtn');
+  const ent=Object.entries(cart).filter(([id,q])=>{const it=menu.find(x=>x.id==id);return q>0&&it&&it.on});
+  if(!ent.length){box.innerHTML='<div class="oempty">Select items from the menu above</div>';btn.disabled=true;return}
+  let tot=0,html='';
+  ent.forEach(([id,q])=>{const it=menu.find(x=>x.id==id);const s=it.price*q;tot+=s;html+=`<div class="orow"><span>${it.name} <span style="color:#444">×${q}</span></span><span style="font-weight:700">₱${s.toFixed(2)}</span></div>`});
+  html+=`<div class="ototl"><span>Total</span><span style="color:var(--pk)">₱${tot.toFixed(2)}</span></div>`;
+  box.innerHTML=html; btn.disabled=!document.getElementById('cname').value.trim();
+}
+
+/* ══ STORE — ORDER ══ */
+async function placeOrder(){
+  const nm=document.getElementById('cname').value.trim();
+  if(!nm){toast('Please enter your name!');return}
+  const ent=Object.entries(cart).filter(([id,q])=>{const it=menu.find(x=>x.id==id);return q>0&&it&&it.on});
+  if(!ent.length){toast('Select items first!');return}
+  const items=ent.map(([id,q])=>{const it=menu.find(x=>x.id==id);return{id:+id,name:it.name,q,price:it.price,sub:+(it.price*q).toFixed(2)}});
+  const tot=+items.reduce((s,i)=>s+i.sub,0).toFixed(2);
+  const ord={id:Date.now(),num:orders.length+1,customer:nm,items,total:tot,ts:new Date().toLocaleString('en-PH')};
+  orders.push(ord); await saveOrders();
+  document.getElementById('cdet').innerHTML=`<strong>${nm}</strong><br><br>${items.map(i=>`${i.name} ×${i.q} — ₱${i.sub.toFixed(2)}`).join('<br>')}<br><br><span class="tot">Total: ₱${tot.toFixed(2)}</span><br><span class="onum">Order #${ord.num}</span>`;
+  document.getElementById('confModal').classList.remove('hidden');
+  if(aOpen()&&oTabOn())renderOrders();
+}
+function resetCart(){cart={};document.getElementById('cname').value='';renderMenu();}
+
+/* ══ ADMIN — MENU ══ */
+function renderAdmin(){
+  document.getElementById('alist').innerHTML=menu.map(i=>`
+    <div class="ai"><div class="aii"><div class="ain">${i.name}</div><div class="aic">${i.cat}</div></div>
+    <div style="display:flex;align-items:center;gap:3px;font-size:.68rem;color:#999;font-weight:600">₱
+      <input class="pi" type="number" value="${i.price.toFixed(2)}" step="0.5" min="0" onchange="updP(${i.id},this.value)" onblur="updP(${i.id},this.value)">
+    </div>
+    <label class="tgl"><input type="checkbox" ${i.on?'checked':''} onchange="togItem(${i.id},this.checked)"><span class="tsl"></span></label>
+    <button class="dbtn" onclick="delItem(${i.id})">✕</button></div>`).join('');
+}
+async function updP(id,v){const it=menu.find(i=>i.id===id);if(!it)return;it.price=Math.max(0,parseFloat(v)||0);await saveMenu();const e=document.getElementById('mp'+id);if(e)e.textContent='₱'+it.price.toFixed(2);updSum();}
+async function togItem(id,v){const it=menu.find(i=>i.id===id);if(!it)return;it.on=v;if(!v)delete cart[id];await saveMenu();renderMenu();renderAdmin();}
+async function delItem(id){if(!confirm('Remove this item?'))return;delete cart[id];menu=menu.filter(i=>i.id!==id);await saveMenu();renderAdmin();renderMenu();toast('Item removed');}
+async function saveItem(){
+  const nm=document.getElementById('nName').value.trim();if(!nm){toast('Enter item name!');return}
+  menu.push({id:Date.now(),name:nm,cat:document.getElementById('nCat').value,desc:document.getElementById('nDesc').value.trim(),price:Math.max(0,parseFloat(document.getElementById('nPrice').value)||0),on:true});
+  await saveMenu();renderAdmin();renderMenu();
+  ['nName','nDesc','nPrice'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('addWrap').classList.add('hidden');toast('Item added!');
+}
+
+/* ══ ADMIN — ORDERS ══ */
+function renderOrders(){
+  const tb=document.getElementById('otbody');
+  tb.innerHTML=!orders.length?'<tr><td colspan="5" class="noo">No orders yet</td></tr>'
+    :[...orders].reverse().map(o=>`<tr>
+      <td style="font-weight:800;color:var(--pk)">#${o.num}</td>
+      <td style="font-size:.7rem;color:#999">${o.ts}</td>
+      <td style="font-weight:700">${o.customer}</td>
+      <td style="font-size:.73rem;color:#666">${o.items.map(i=>`${i.name} ×${i.q}`).join(', ')}</td>
+      <td style="font-weight:800;color:var(--pk)">₱${o.total.toFixed(2)}</td></tr>`).join('');
+  const rev=orders.reduce((s,o)=>s+o.total,0);
+  const un=orders.reduce((s,o)=>s+o.items.reduce((ss,i)=>ss+i.q,0),0);
+  document.getElementById('stats').innerHTML=`
+    <div class="stat"><div class="statl">Orders</div><div class="statv pk">${orders.length}</div></div>
+    <div class="stat"><div class="statl">Items Sold</div><div class="statv">${un}</div></div>
+    <div class="stat"><div class="statl">Revenue</div><div class="statv pk">₱${rev.toFixed(2)}</div></div>`;
+}
+function exportXls(){
+  if(!orders.length){toast('No orders to export!');return}
+  const rows=[];
+  orders.forEach(o=>o.items.forEach((it,j)=>rows.push({'Order#':o.num,'Time':o.ts,'Customer':o.customer,'Item':it.name,'Qty':it.q,'Unit(₱)':it.price,'Sub(₱)':it.sub,'Total(₱)':j===0?o.total:''})));
+  const prod={};orders.forEach(o=>o.items.forEach(i=>{if(!prod[i.name])prod[i.name]={u:0,r:0};prod[i.name].u+=i.q;prod[i.name].r+=i.sub}));
+  const sum=Object.entries(prod).map(([n,d])=>({'Product':n,'Units':d.u,'Revenue(₱)':d.r.toFixed(2)}));
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(rows),'Orders');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(sum),'Summary');
+  XLSX.writeFile(wb,`AyoBakehouse_${new Date().toISOString().slice(0,10)}.xlsx`);
+  toast('Excel downloaded!');
+}
+async function clearOrders(){if(!confirm('Clear ALL orders?'))return;orders=[];await saveOrders();renderOrders();toast('Cleared')}
+
+/* ══ NAV ══ */
+function goStore(){document.getElementById('storePage').classList.remove('hidden');document.getElementById('adminPage').classList.add('hidden');renderMenu();window.scrollTo(0,0);}
+function sc(id){document.getElementById(id)?.scrollIntoView({behavior:'smooth'});}
+function swTab(t,btn){
+  document.getElementById('mTab').classList.toggle('hidden',t!=='m');
+  document.getElementById('oTab').classList.toggle('hidden',t!=='o');
+  document.querySelectorAll('.atab').forEach(b=>b.classList.remove('on'));btn.classList.add('on');
+  if(t==='o')renderOrders();if(t==='m')renderAdmin();
+}
+
+/* ══ AUTH ══ */
+function openAdmin(){document.getElementById('apw').value='';document.getElementById('pwerr').style.display='none';document.getElementById('adminModal').classList.remove('hidden');setTimeout(()=>document.getElementById('apw').focus(),120);}
+function checkPw(){
+  if(document.getElementById('apw').value===PASS){
+    closeM('adminModal');
+    document.getElementById('storePage').classList.add('hidden');
+    document.getElementById('adminPage').classList.remove('hidden');
+    const mode = USE_WS
+      ? `<span><span class="sdot"></span>Claude shared storage — all devices on this conversation URL sync live</span>`
+      : DBURL
+        ? `<span><span class="sdot fb"></span>Firebase: <strong>${DBURL.replace('https://','').replace(/\.firebaseio\.com.*/,'')}</strong></span><button class="creset" onclick="resetConn()">Change</button>`
+        : `<span><span class="sdot dm"></span>Local only — no cross-device sync</span>`;
+    document.getElementById('sbar').innerHTML = mode;
+    renderAdmin();renderOrders();document.getElementById('tabM').click();window.scrollTo(0,0);
+  } else {
+    document.getElementById('pwerr').style.display='block';
+    document.getElementById('apw').value='';document.getElementById('apw').focus();
+  }
+}
+
+/* ══ MODALS & TOAST ══ */
+function closeM(id){document.getElementById(id).classList.add('hidden');}
+document.querySelectorAll('.overlay').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.add('hidden');}));
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2800);}
+
+/* ══ INIT ══ */
+(function(){
+  if (USE_WS) {
+    // Claude artifact — skip setup, use window.storage shared
+    launch();
+  } else {
+    // GitHub Pages / standalone — check for saved Firebase URL
+    const saved = localStorage.getItem(FB_KEY);
+    if (saved) { DBURL = saved; launch(); }
+    else document.getElementById('setupPage').classList.remove('hidden');
+  }
+})();
+</script>
+</body>
+</html>
